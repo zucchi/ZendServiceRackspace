@@ -1,4 +1,4 @@
-ZendService\Akismet component
+ZendService\Rackspace component
 
 You can install using:
 
