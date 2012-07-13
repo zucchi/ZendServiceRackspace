@@ -1,16 +1,27 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
+ * Zend Framework
  *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Service
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://framework.zend.com/license/new-bsd
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@zend.com so we can send you a copy immediately.
+ *
+ * @category   Zend
+ * @package    ZendService
+ * @subpackage Rackspace
+ * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
-namespace Zend\Service\Rackspace;
+namespace ZendService\Rackspace;
 
-class Files extends AbstractRackspace
+class Files extends AbstractService
 {
     const ERROR_CONTAINER_NOT_EMPTY            = 'The container is not empty, I cannot delete it.';
     const ERROR_CONTAINER_NOT_FOUND            = 'The container was not found.';
@@ -86,7 +97,7 @@ class Files extends AbstractRackspace
      * Get all the containers
      *
      * @param array $options
-     * @return Zend\Service\Rackspace\Files\ContainerList|boolean
+     * @return ZendService\Rackspace\Files\ContainerList|boolean
      */
     public function getContainers($options=array())
     {
@@ -137,7 +148,7 @@ class Files extends AbstractRackspace
      *
      * @param string $container
      * @param array $options
-     * @return  Zend\Service\Rackspace\Files\ObjectList|boolean
+     * @return  ZendService\Rackspace\Files\ObjectList|boolean
      */
     public function getObjects($container,$options=array())
     {
@@ -155,7 +166,7 @@ class Files extends AbstractRackspace
      *
      * @param string $container
      * @param array $metadata
-     * @return Zend\Service\Rackspace\Files\Container|boolean
+     * @return ZendService\Rackspace\Files\Container|boolean
      */
     public function createContainer($container,$metadata=array())
     {
@@ -275,7 +286,7 @@ class Files extends AbstractRackspace
      * @param string $container
      * @param string $object
      * @param array $headers
-     * @return Zend\Service\Rackspace\Files\Object|boolean
+     * @return ZendService\Rackspace\Files\Object|boolean
      */
     public function getObject($container,$object,$headers=array())
     {

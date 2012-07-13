@@ -13,20 +13,46 @@
  * to license@zend.com so we can send you a copy immediately.
  *
  * @category   Zend
- * @package    ZendService
- * @subpackage Rackspace
+ * @package    ZendService\Rackspace\
+ * @subpackage Dns
  * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
-namespace ZendService\Rackspace\Exception;
+namespace ZendService\Rackspace\Dns;
+
+use ZendService\Rackspace\Dns;
+use ZendService\Rackspace\Dns\Record;
+use ZendService\Rackspace\AbstractService;
+use ZendService\Rackspace\AbstractList;
 
 /**
- * @category   Zend
- * @package    ZendService
+ * List of records 
+ *
+ * @category   ZendService
+ * @package    ZendService\Rackspace
+ * @subpackage Dns
  * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-interface ExceptionInterface
+class RecordList extends AbstractList
 {
+    /**
+     * the Rackspace DNS service
+     * @var Dns
+     */
+    protected $key = 'records';
+    
+    /**
+     * the class to use for each entry in the list
+     * @var string
+     */
+    protected $class = "\ZendService\Rackspace\Dns\Record";
+    
+    /**
+     * the collective records
+     * @var array
+     */
+    public $records = array();
+    
 }

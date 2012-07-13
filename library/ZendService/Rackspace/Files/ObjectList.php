@@ -1,29 +1,42 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
+ * Zend Framework
  *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Service
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://framework.zend.com/license/new-bsd
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@zend.com so we can send you a copy immediately.
+ *
+ * @category   Zend
+ * @package    ZendService\Rackspace\
+ * @subpackage Files
+ * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
-namespace Zend\Service\Rackspace\Files;
+namespace ZendService\Rackspace\Files;
 
-use Zend\Service\Rackspace\Files as RackspaceFiles;
-use Zend\Service\Rackspace\Files\Object;
+use ZendService\Rackspace\Files\Object;
+use ZendService\Rackspace\Files as RackspaceFiles;
 
 /**
  * List of servers retrived from the GoGrid web service
  *
  * @category   Zend
- * @package    Zend\Service\Rackspace
+ * @package    ZendService\Rackspace
  * @subpackage Files
+ * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class ObjectList implements \Countable, \Iterator, \ArrayAccess
 {
     /**
-     * @var array of Zend\Service\GoGrid\Object
+     * @var array of ZendService\GoGrid\Object
      */
     protected $objects = array();
     /**
@@ -77,8 +90,8 @@ class ObjectList implements \Countable, \Iterator, \ArrayAccess
     /**
      * Add an object
      *
-     * @param  Zend\Service\Rackspace\Files\Object $obj
-     * @return Zend\Service\Rackspace\Files\ObjectList
+     * @param  ZendService\Rackspace\Files\Object $obj
+     * @return ZendService\Rackspace\Files\ObjectList
      */
     protected function _addObject (Object $obj)
     {
@@ -101,7 +114,7 @@ class ObjectList implements \Countable, \Iterator, \ArrayAccess
      *
      * Implement Iterator::current()
      *
-     * @return Zend\Service\Rackspace\Files\Object
+     * @return ZendService\Rackspace\Files\Object
      */
     public function current()
     {
@@ -175,7 +188,7 @@ class ObjectList implements \Countable, \Iterator, \ArrayAccess
      *
      * @param   int     $offset
      * @throws  OutOfBoundsException
-     * @return  Zend\Service\Rackspace\Files\Object
+     * @return  ZendService\Rackspace\Files\Object
      */
     public function offsetGet($offset)
     {
@@ -193,7 +206,7 @@ class ObjectList implements \Countable, \Iterator, \ArrayAccess
      *
      * @param   int     $offset
      * @param   string  $value
-     * @throws  Zend\Service\Rackspace\Exception
+     * @throws  ZendService\Rackspace\Exception
      */
     public function offsetSet($offset, $value)
     {
@@ -206,7 +219,7 @@ class ObjectList implements \Countable, \Iterator, \ArrayAccess
      * Implement ArrayAccess::offsetUnset()
      *
      * @param   int     $offset
-     * @throws  Zend\Service\Rackspace\Exception
+     * @throws  ZendService\Rackspace\Exception
      */
     public function offsetUnset($offset)
     {

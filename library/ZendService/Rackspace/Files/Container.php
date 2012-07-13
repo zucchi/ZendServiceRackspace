@@ -1,20 +1,32 @@
 <?php
+
 /**
- * Zend Framework (http://framework.zend.com/)
+ * Zend Framework
  *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Service
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://framework.zend.com/license/new-bsd
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@zend.com so we can send you a copy immediately.
+ *
+ * @category   Zend
+ * @package    ZendService\Rackspace
+ * @subpackage Files
+ * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
-namespace Zend\Service\Rackspace\Files;
+namespace ZendService\Rackspace\Files;
 
-use Zend\Service\Rackspace\Files as RackspaceFiles;
+use ZendService\Rackspace\Files as RackspaceFiles;
 
 class Container
 {
-    const ERROR_PARAM_FILE_CONSTRUCT  = 'The Zend\Service\Rackspace\Files passed in construction is not valid';
+    const ERROR_PARAM_FILE_CONSTRUCT  = 'The ZendService\Rackspace\Files passed in construction is not valid';
     const ERROR_PARAM_ARRAY_CONSTRUCT = 'The array passed in construction is not valid';
     const ERROR_PARAM_NO_NAME         = 'The container name is empty';
     /**
@@ -179,7 +191,7 @@ class Container
     /**
      * Get all the object of the container
      *
-     * @return Zend\Service\Rackspace\Files\ObjectList
+     * @return ZendService\Rackspace\Files\ObjectList
      */
     public function getObjects()
     {
@@ -190,7 +202,7 @@ class Container
      * 
      * @param string $name
      * @param array $headers
-     * @return Zend\Service\Rackspace\Files\Object|boolean
+     * @return ZendService\Rackspace\Files\Object|boolean
      */
     public function getObject($name, $headers=array())
     {

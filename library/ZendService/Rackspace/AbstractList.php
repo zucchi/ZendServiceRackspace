@@ -19,12 +19,13 @@
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
-namespace ZendService\Rackspace\Servers;
+namespace ZendService\Rackspace;
 
-use ZendService\Rackspace\Servers as RackspaceServers;
+use ZendService\Rackspace;
+use ZendService\Rackspace\AbstractService;
 
 /**
- * List of images of Rackspace
+ * Abstract List of rackspace entities 
  *
  * @category   Zend
  * @package    ZendService\Rackspace
@@ -32,20 +33,27 @@ use ZendService\Rackspace\Servers as RackspaceServers;
  * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class ImageList implements \Countable, \Iterator, \ArrayAccess
+abstract class AbstractList implements \Countable, \Iterator, \ArrayAccess // \JsonSerializable
 {
     /**
-     * @var array of ZendService\Rackspace\Servers\Image
-     */
-    protected $images = array();
-    /**
-     * @var int Iterator key
-     */
-    protected $iteratorKey = 0;
-    /**
-     * @var ZendService\Rackspace\Servers
+     * the Rackspace DNS service
+     * @var Dns
      */
     protected $service;
+    
+    /**
+     * the key for the containing property
+     * @var string
+     */
+    protected $key = 'container';
+    
+    /**
+     * class to instatiate each item as 
+     * @var string
+     */
+    protected $class;
+    
+    
     /**
      * Construct
      *
@@ -53,52 +61,98 @@ class ImageList implements \Countable, \Iterator, \ArrayAccess
      * @param  array $list
      * @return void
      */
-    public function __construct(RackspaceServers $service,$list = array())
+    public function __construct(AbstractService $service, $data = array())
     {
-        if (!($service instanceof RackspaceServers) || !is_array($list)) {
-            throw new Exception\InvalidArgumentException("You must pass a ZendService\Rackspace\Servers object and an array");
-        }
-        $this->service= $service;
-        $this->constructFromArray($list);
+        $this->setService($service);
+        $this->fromArray($data);
     }
+    
     /**
-     * Transforms the array to array of Server
+     * Set the Rackspace service to use with the domainlist
+     * 
+     * @param Dns $service
+     * @throws Exception\RuntimeException
+     * @return \ZendService\Rackspace\Dns\DomainList
+     */
+    public function setService(Dns $service)
+    {
+        $this->service = $service;
+        return $this;
+    }
+    
+    /**
+     * get the currently set service
+     * @return Dns
+     */
+    public function getService()
+    {
+        return $this->service;
+    }
+    
+    /**
+     * Transforms the array to array of Domain
      *
      * @param  array $list
      * @return void
      */
-    private function constructFromArray(array $list)
+    public function fromArray(array $data)
     {
-        foreach ($list as $image) {
-            $this->addImage(new Image($this->service,$image));
+        if (isset($data[$this->key])) {
+            $data = $data[$this->key];
+        }    
+        
+        foreach ($data as $entry) {
+            if ($this->class) {
+                if (!$entry instanceof $this->class) {
+                    $class = $this->class;
+                    $entry = new $class($this->service, $entry);
+                }
+            }
+            $this->{$this->key}[] = $entry;
         }
     }
+    
     /**
-     * Add an image
-     *
-     * @param  ZendService\Rackspace\Servers\Image $image
-     * @return ZendService\Rackspace\Servers\ImageList
-     */
-    protected function addImage (Image $image)
-    {
-        $this->images[] = $image;
-        return $this;
-    }
-    /**
-     * To Array
+     * return list as an array
      * 
-     * @return array 
+     * @return array
      */
-    public function toArray()
+    public function toArray($deep = true)
     {
-        $array= array();
-        foreach ($this->images as $image) {
-            $array[]= $image->toArray();
+        $data = array();
+        
+        foreach ($this->{$this->key} as $entry) {
+            if (is_object($entry) && method_exists($entry, 'toArray')) {
+                $data[$this->key][] = $entry->toArray($deep);
+                
+            } else {
+                $data[$this->key][] = $entry;
+            }
         }
-        return $array;
+        
+        return $data;
     }
+    
     /**
-     * Return number of images
+     * validate that the entries in the list are valid
+     * 
+     * @return bool
+     */
+    public function isValid()
+    {
+        $valid = true;
+        
+        foreach ($this->{$this->key} AS $entry) {
+            if (!$entry->isValid) {
+                $valid = false;
+            }
+        }
+        
+        return $valid;
+    }
+    
+    /**
+     * Return number of servers
      *
      * Implement Countable::count()
      *
@@ -106,18 +160,18 @@ class ImageList implements \Countable, \Iterator, \ArrayAccess
      */
     public function count()
     {
-        return count($this->images);
+        return count($this->{$this->key});
     }
     /**
      * Return the current element
      *
      * Implement Iterator::current()
      *
-     * @return ZendService\Rackspace\Servers\Image
+     * @return ZendService\Rackspace\Servers\Server
      */
     public function current()
     {
-        return $this->images[$this->iteratorKey];
+        return $this->{$this->key}[$this->iteratorKey];
     }
     /**
      * Return the key of the current element
@@ -178,7 +232,7 @@ class ImageList implements \Countable, \Iterator, \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        return ($offset < $this->count());
+        return isset($this->{$this->key}[$offset]);
     }
     /**
      * Return value at given offset
@@ -187,41 +241,35 @@ class ImageList implements \Countable, \Iterator, \ArrayAccess
      *
      * @param   int     $offset
      * @throws  OutOfBoundsException
-     * @return  ZendService\Rackspace\Servers\Image
+     * @return  ZendService\Rackspace\Servers\Server
      */
     public function offsetGet($offset)
     {
-        if ($this->offsetExists($offset)) {
-            return $this->images[$offset];
-        } else {
-            throw new Exception\OutOfBoundsException('Illegal index');
-        }
+         return isset($this->{$this->key}[$offset]) ? $this->{$this->key}[$offset] : null;
     }
 
     /**
-     * Throws exception because all values are read-only
-     *
      * Implement ArrayAccess::offsetSet()
      *
      * @param   int     $offset
      * @param   string  $value
-     * @throws  ZendService\Rackspace\Exception
      */
     public function offsetSet($offset, $value)
     {
-        throw new Exception('You are trying to set read-only property');
+        if (is_null($offset)) {
+            $this->{$this->key}[] = $value;
+        } else {
+            $this->{$this->key}[$offset] = $value;
+        }
     }
 
     /**
-     * Throws exception because all values are read-only
-     *
      * Implement ArrayAccess::offsetUnset()
      *
      * @param   int     $offset
-     * @throws  ZendService\Rackspace\Exception
      */
     public function offsetUnset($offset)
     {
-        throw new Exception('You are trying to unset read-only property');
+        unset($this->{$this->key}[$offset]);
     }
 }
