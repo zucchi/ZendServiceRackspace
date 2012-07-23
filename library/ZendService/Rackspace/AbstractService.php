@@ -23,14 +23,17 @@ namespace ZendService\Rackspace;
 
 use ZendService\Rackspace\Exception;
 use Zend\Http\Client as HttpClient;
+use Zend\ServiceManager\ServiceManagerAwareInterface;
+use Zend\ServiceManager\ServiceManager;
+use ZfcBase\EventManager\EventProvider;
 
-abstract class AbstractService
+abstract class AbstractService implements ServiceManagerAwareInterface
 {
     const API_FORMAT             = 'json';
     const USER_AGENT             = 'ZendService\Rackspace';
     const HEADER_TOKEN           = 'X-Auth-Token';
-    
-    
+
+
     // messages
     const RESPONSE_FAILED_DECODE = 'responseFailedDecode';
     const SERVICE_ACCESS_DENIED = 'serviceAccessDenied';
@@ -40,11 +43,12 @@ abstract class AbstractService
     protected $messageTemplates = array(
         self::RESPONSE_FAILED_DECODE => "Unable to decode json",
         self::SERVICE_ACCESS_DENIED => 'You do not have permission to access this service',
-    
-    
     );
-    
-    
+
+    /**
+     * @var ServiceManager
+     */
+    protected $serviceManager;
     
     /**
      * the Rackspace Identity to use 
@@ -68,6 +72,29 @@ abstract class AbstractService
     {
         $this->setIdentity($identity);
     }
+    
+    /**
+     * Retrieve service manager instance
+     *
+     * @return ServiceManager
+     */
+    public function getServiceManager()
+    {
+        return $this->serviceManager;
+    }
+
+    /**
+     * Set service manager instance
+     *
+     * @param ServiceManager $locator
+     * @return User
+     */
+    public function setServiceManager(ServiceManager $serviceManager)
+    {
+        $this->serviceManager = $serviceManager;
+        return $this;
+    }
+    
     /**
      * Get the set Identity
      *
@@ -128,7 +155,7 @@ abstract class AbstractService
     protected function httpCall($url,$method,array $params = array(), array $body=array(),array $headers=array())
     {
         $client = $this->getHttpClient();
-        $client->resetParameters();
+        $this->httpClient->resetParameters();
         
         $client->setMethod($method);
         
@@ -162,8 +189,6 @@ abstract class AbstractService
             // decode body for error messages
             $error = $this->decodeBody($response);
             $code = (isset($error->code)) ? $error->code : false;
-\Zend\Debug::dump($client->getRequest()->getContent());
-            \Zend\Debug::dump($response->getBody());exit();
 
             if (isset($error->validationErrors->messages)) {
                 $messages = implode(PHP_EOL, $error->validationErrors->messages);
@@ -181,6 +206,7 @@ abstract class AbstractService
     /**
      * decode response body
      * 
+     * @todo: replace with Zend\Json
      * @param \Zend\Http\Response $response
      * @throws Exception\RuntimeException
      * @return array

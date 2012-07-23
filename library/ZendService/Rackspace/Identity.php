@@ -55,14 +55,18 @@ class Identity extends AbstractService
     
     protected $tenantId;
     
-    protected $serviceCatalog;
+    protected $serviceCatalog = array();
     
-    protected $user;
+    protected $user = array();
     
-	public function __construct($username, $apiKey, $apiEndpoint = self::US_API_ENDPOINT)
+	public function __construct($username = null, $apiKey = null, $apiEndpoint = self::US_API_ENDPOINT)
     {
-        $this->setUsername($username);
-        $this->setApiKey($apiKey);
+        if ($username) {
+            $this->setUsername($username);
+        }
+        if ($apiKey) {
+            $this->setApiKey($apiKey);
+        }
         $this->setApiEndpoint($apiEndpoint);
     }
     
@@ -201,6 +205,23 @@ class Identity extends AbstractService
         return $this->serviceCatalog;
     }
     
+     /**
+	 * set the service catalog
+	 * 
+	 * @param array
+     * @return $this
+     */
+    public function setServiceCatalog(array $serviceCatalog)
+    {
+        $this->serviceCatalog = array();
+        foreach ($serviceCatalog as $service) {
+            $this->serviceCatalog['services'][] = $service->name;
+            $this->serviceCatalog['catalog'][$service->name] = $service;
+        }
+        
+        return $this;
+    }
+    
     public function hasService($serviceKey)
     {
         return in_array($serviceKey, $this->serviceCatalog['services']);
@@ -231,6 +252,18 @@ class Identity extends AbstractService
     public function getUser()
     {
         return $this->user;
+    }
+    
+    /**
+     * set the currently defined user
+     * 
+     * @param array user data
+     * @return $this;
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+        return $this;
     }
 
     /**
@@ -269,12 +302,8 @@ class Identity extends AbstractService
         $this->tokenExpiry = new \DateTime($data->access->token->expires); 
         $this->tenantId = $data->access->token->tenant->id;
         
-        $this->serviceCatalog = array();
-        foreach ($data->access->serviceCatalog as $service) {
-            $this->serviceCatalog['services'][] = $service->name;
-            $this->serviceCatalog['catalog'][$service->name] = $service;
-        }
-        $this->user = $data->access->user;
+        $this->setServiceCatalog($data->access->serviceCatalog);
+        $this->setUser($data->access->user);
         
         return $this;
     }

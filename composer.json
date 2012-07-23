@@ -1,19 +1,31 @@
 {
-    "name": "zendframework/zend-service-rackspace",
-    "description": " ",
-    "license": "BSD-3-Clause",
+    "name": "zendframework/zendservice-rackspace",
+    "description": "OOP wrapper for the Rackspace web service",
+    "type": "library",
     "keywords": [
         "zf2",
         "rackspace"
     ],
+    "homepage": "http://packages.zendframework.com/",
+    "license": "BSD-3-Clause",
     "autoload": {
         "psr-0": {
-            "ZendService\\Rackspace": ""
+            "ZendService": "library/"
         }
     },
-    "target-dir": "ZendService/Rackspace",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://packages.zendframework.com/"
+        }
+    ],
     "require": {
         "php": ">=5.3.3",
-        "zendframework/zend-http": "self.version"
+        "zendframework/zendframework": ">=2.0.0-beta5"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0-dev"
+        }
     }
 }

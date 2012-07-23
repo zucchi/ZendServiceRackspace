@@ -109,7 +109,9 @@ class Dns extends AbstractService
         
         $data = $this->decodeBody($result, true);
         
-        return $data;
+        $list = new Dns\DomainList($data);
+        
+        return $list;
     }
     
     /**
@@ -130,7 +132,7 @@ class Dns extends AbstractService
         
         $data = $this->decodeBody($result, true);
         
-        $domain = new Dns\Domain($this, $data);
+        $domain = new Dns\Domain($data);
         
         return $domain;
     }
@@ -252,7 +254,7 @@ class Dns extends AbstractService
     public function removeDomains(array $domainIds, $removeSubdomains = false)
     {
         $uri = '/domains?id=' . (implode('&id=', $domainIds));
-        $uri .= '&removeSubdomains=' . ($removeSubdomains ? 'true' : 'false');
+        $uri .= '&deleteSubdomains=' . ($removeSubdomains ? 'true' : 'false');
         
         $result = $this->httpCall($uri, 'DELETE');
         

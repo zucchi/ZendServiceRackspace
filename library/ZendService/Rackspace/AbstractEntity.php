@@ -23,6 +23,13 @@ namespace ZendService\Rackspace;
 
 use ZendService\Rackspace;
 use ZendService\Rackspace\AbstractService;
+use Zend\InputFilter\InputFilterAwareInterface;
+use Zend\InputFilter\Factory as InputFactory;
+use Zend\InputFilter\InputFilterInterface;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilter;
+use Zend\Validator;
+use Zend\Filter;
 
 /**
  * Abstract List of rackspace entities 
@@ -33,22 +40,24 @@ use ZendService\Rackspace\AbstractService;
  * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-abstract class AbstractEntity // \JsonSerializable
+abstract class AbstractEntity implements InputFilterAwareInterface //, \JsonSerializable
 {
     /**
      * the Rackspace DNS service
      * @var Dns
      */
     protected $service;
-    
+
     /**
      * set service and construct from array
      * 
      * @param array $data
      */
-    public function __construct(AbstractService $service, array $data = array())
+    public function __construct(array $data = array(), AbstractService $service = null)
     {
-        $this->setService($service);
+        if ($service) {
+            $this->setService($service);
+        }
         $this->fromArray($data);
     }
     
@@ -136,6 +145,11 @@ abstract class AbstractEntity // \JsonSerializable
      * @return Ambigous <multitype:, multitype:NULL >
      */
     public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+    
+    public function getArrayCopy()
     {
         return $this->toArray();
     }

@@ -26,6 +26,14 @@ use ZendService\Rackspace\AbstractEntity;
 use ZendService\Rackspace\Dns\DomainList;
 use ZendService\Rackspace\Dns\RecordList;
 use ZendService\Rackspace\Dns;
+use Zend\InputFilter\InputFilterAwareInterface;
+use Zend\InputFilter\Factory as InputFactory;
+use Zend\InputFilter\InputFilterInterface;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilter;
+use Zend\Validator;
+use Zend\Filter;
+
 
 /**
  * Domain Entity for Rackspace Could DNS service
@@ -39,6 +47,13 @@ use ZendService\Rackspace\Dns;
  */
 class Domain extends AbstractEntity
 {
+    
+    /**
+     * input filter for entity
+     * @var InputFilter
+     */
+    protected $inputFilter;
+    
     /**
      * name of domain
      * 
@@ -114,12 +129,14 @@ class Domain extends AbstractEntity
      * 
      * @param array $data
      */
-    public function __construct(Dns $service, array $data = array())
+    public function __construct(array $data = array(), Dns $service = null)
     {
-        $this->setService($service);
+        if ($service) {
+            $this->setService($service);
+        }
         
-        $this->recordsList = new RecordList($service);
-        $this->subdomains = new DomainList($service);
+        $this->recordsList = new RecordList();
+        $this->subdomains = new DomainList();
         
         $this->fromArray($data);
     }
@@ -139,7 +156,7 @@ class Domain extends AbstractEntity
     public function setRecordsList($records)
     {
         if (is_array($records)) {
-            $list = new RecordList($this->service, $records);
+            $list = new RecordList($records, $this->service);
         }
         
         $this->recordsList = $list;
@@ -160,7 +177,7 @@ class Domain extends AbstractEntity
     public function setSubdomains($subdomains)
     {
         if (is_array($subdomains)) {
-            $subdomains = new DomainList($this->service, $subdomains);
+            $subdomains = new DomainList($subdomains, $this->service);
         }
         
         $this->subdomains = $subdomains;
@@ -254,5 +271,78 @@ class Domain extends AbstractEntity
         }
         
         return $data;
+    }
+    
+    /**
+     * Set input filter
+     * 
+     * @param  InputFilterInterface $inputFilter 
+     * @return InputFilterAwareInterface
+     */
+    public function setInputFilter(InputFilterInterface $inputFilter)
+    {
+        $this->inputFilter = $inputFilter;
+        return $this;
+    }
+    
+    /**
+     * Retrieve input filter
+     * 
+     * @return InputFilterInterface
+     */
+    public function getInputFilter()
+    {
+        if (!$this->inputFilter) {
+            $inputFilter = new InputFilter();
+            $factory = new InputFactory();
+            
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'name',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'Hostname'),
+                ),
+            )));
+    
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'emailAddress',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'EmailAddress'),
+                ),
+            )));
+            
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'ttl',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'Digits'),
+                ),
+            )));
+            
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'comment',
+                'required' => false,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                ),
+            )));
+            
+            $this->inputFilter = $inputFilter; 
+        }
+        
+        return $this->inputFilter;
     }
 }

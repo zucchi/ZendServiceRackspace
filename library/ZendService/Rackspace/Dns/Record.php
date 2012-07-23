@@ -24,6 +24,13 @@ namespace ZendService\Rackspace\Dns;
 
 use ZendService\Rackspace\AbstractEntity;
 use ZendService\Rackspace\Dns;
+use Zend\InputFilter\InputFilterAwareInterface;
+use Zend\InputFilter\Factory as InputFactory;
+use Zend\InputFilter\InputFilterInterface;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilter;
+use Zend\Validator;
+use Zend\Filter;
 
 /**
  * Record Entity for Rackspace Could DNS service
@@ -66,6 +73,12 @@ class Record  extends AbstractEntity
         self::TYPE_SRV => array('priority' => true, 'name' => true, 'type' => true, 'data' => true, 'ttl' => false, 'comment' => false),
         self::TYPE_TXT => array('name' => true, 'type' => true, 'data' => true, 'ttl' => false, 'comment' => false),
     );
+    
+    /**
+     * input filter for entity
+     * @var InputFilter
+     */
+    protected $inputFilter;
     
     /**
      * Specifies the name for the domain or subdomain. Must be a valid domain name.
@@ -192,5 +205,96 @@ class Record  extends AbstractEntity
         }
         
         return $data;
+    }
+    
+    /**
+     * Set input filter
+     * 
+     * @param  InputFilterInterface $inputFilter 
+     * @return InputFilterAwareInterface
+     */
+    public function setInputFilter(InputFilterInterface $inputFilter)
+    {
+        $this->inputFilter = $inputFilter;
+        return $this;
+    }
+    
+    /**
+     * Retrieve input filter
+     * 
+     * @return InputFilterInterface
+     */
+    public function getInputFilter()
+    {
+        if (!$this->inputFilter) {
+            $inputFilter = new InputFilter();
+            $factory = new InputFactory();
+            
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'name',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'Hostname'),
+                ),
+            )));
+    
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'type',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+            )));
+            
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'data',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+            )));
+            
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'ttl',
+                'required' => false,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'Digits'),
+                ),
+            )));
+            
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'priority',
+                'required' => false,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array('name' => 'Digits'),
+                ),
+            )));
+            
+            $inputFilter->add($factory->createInput(array(
+                'name' => 'comment',
+                'required' => false,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                ),
+            )));
+            
+            $this->inputFilter = $inputFilter; 
+        }
+        
+        return $this->inputFilter;
     }
 }

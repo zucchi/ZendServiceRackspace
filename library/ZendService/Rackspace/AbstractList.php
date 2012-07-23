@@ -61,9 +61,11 @@ abstract class AbstractList implements \Countable, \Iterator, \ArrayAccess // \J
      * @param  array $list
      * @return void
      */
-    public function __construct(AbstractService $service, $data = array())
+    public function __construct($data = array(),AbstractService $service = null)
     {
-        $this->setService($service);
+        if ($service) {
+            $this->setService($service);
+        }
         $this->fromArray($data);
     }
     
@@ -105,7 +107,7 @@ abstract class AbstractList implements \Countable, \Iterator, \ArrayAccess // \J
             if ($this->class) {
                 if (!$entry instanceof $this->class) {
                     $class = $this->class;
-                    $entry = new $class($this->service, $entry);
+                    $entry = new $class($entry, $this->service);
                 }
             }
             $this->{$this->key}[] = $entry;
