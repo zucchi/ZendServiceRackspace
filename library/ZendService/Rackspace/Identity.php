@@ -25,13 +25,13 @@ use ZendTest\Form\Element\DateTest;
 
 use Zend\Http\Client as HttpClient;
 use ZendService\Rackspace\Exception;
+use ZendService\Rackspace\Identity\User;
 
 class Identity extends AbstractService
 {
     const VERSION = 'v2.0';
     const US_API_ENDPOINT = 'https://identity.api.rackspacecloud.com/';
     const UK_API_ENDPOINT = 'https://lon.identity.api.rackspacecloud.com/';
-    const API_URI_BASE = '/tokens';
     
     const REQUIRE_API_DETAILS = 'identityRequiresApiDetails';
     const SERVICE_NOT_AVAILABLE = 'identityServiceNotAvailable';
@@ -39,8 +39,8 @@ class Identity extends AbstractService
      * @var array
      */
     protected $messageTemplates = array(
-        self::REQUIRE_API_DETAILS            => "You must define both a username and API key for this identity",
-        self::SERVICE_NOT_AVAILABLE            => "This service is not available to this identity",
+        self::REQUIRE_API_DETAILS   => "You must define both a username and API key for this identity",
+        self::SERVICE_NOT_AVAILABLE => "This service is not available to this identity",
     );
     
     protected $username;
@@ -249,7 +249,7 @@ class Identity extends AbstractService
      * 
      * @return the $user;
      */
-    public function getUser()
+    public function getCurrentUser()
     {
         return $this->user;
     }
@@ -280,8 +280,10 @@ class Identity extends AbstractService
             );
         }
         
+        $uri = self::VERSION . '/tokens';
+        
         $response = $this->httpCall(
-            $this->getApiEndpoint().self::VERSION . self::API_URI_BASE,
+            $this->getApiEndpoint() . $uri,
             'POST', 
             array(), // $params
             array( // $body
@@ -347,5 +349,178 @@ class Identity extends AbstractService
         }
         
         return true;
+    }
+    /**
+     * List Users
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function listUsers()
+    {
+        $uri = self::VERSION . '/users';
+        $result = $this->httpCall($uri, 'GET');
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * Return detailed information about a specific user, by user name.
+     * @param string $name
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function getUserByName($name)
+    {
+        $uri = self::VERSION . '/users';
+        $result = $this->httpCall($uri, 'GET', array(
+            'name' => $name
+        ));
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * Return detailed information about a specific user, by user ID.
+     * @param string $id
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function getUserById($id)
+    {
+        $uri = self::VERSION . '/users/' . $id;
+        $result = $this->httpCall($uri, 'GET');
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * Add a user
+     * 
+     * N.B. This call is available only to users who hold the admin role 
+     * (identity:user-admin). Using the admin role, you can create a user who 
+     * holds the user role (identity:default).
+     *
+     * @param array $user
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function addUser(User $user)
+    {
+        $uri = self::VERSION . '/users';
+        $result = $this->httpCall($uri, 'POST', array(), array(
+            'user' => $user
+        ));
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * Update a user
+     * 
+     * N.B. Users who hold the admin role can update users who hold the user 
+     * role (identity:default) or the admin role (identity:user-admin) for the 
+     * same tenant.
+     * 
+     * @param User £userId
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function updateUser(User $user)
+    {
+        $uri = self::VERSION . '/users/' . $user->id;
+        $result = $this->httpCall($uri, 'POST', array(), array(
+            'user' => $user
+        ));
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * delete a user
+     * 
+     * 
+     * N.B. This call is available only to users who hold the admin role 
+     * (identity:user-admin). Using the admin role, you can delete a user who 
+     * holds the user role (identity:default) for the same tenant.
+     * 
+     * @param User $user
+     * @return unknown
+     */
+    public function deleteUser(User $user)
+    {
+        $uri = self::VERSION . '/users/' . $user->id;
+        $result = $this->httpCall($uri, 'DELETE');
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * List credentials, other than passwords, for all authentication methods.
+     * 
+     * @param User $user
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function listCredentials(User $user)
+    {
+        $uri = self::VERSION . '/users/' . $user->id . '/OS-KSADM/credentials';
+        $result = $this->httpCall($uri, 'GET');
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * Get user credentials
+     * 
+     * @param User $user
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function getUserCredentials(User $user) 
+    {
+        $uri = self::VERSION . '/users/' . $user->id . '/OS-KSADM/credentials/RAX-KSKEY:apiKeyCredentials';
+        $result = $this->httpCall($uri, 'GET');
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * Return global roles for a specific user
+     * 
+     * @param User $user
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function listUserGlocalRoles(User $user)
+    {
+        $uri = self::VERSION . '/users/' . $user->id . '/roles';
+        $result = $this->httpCall($uri, 'GET');
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
+    }
+    
+    /**
+     * Get a list of tenants
+     * 
+     * @return Ambigous <multitype:, mixed>
+     */
+    public function getTenants()
+    {
+        $uri = self::VERSION . '/tenants';
+        $result = $this->httpCall($uri, 'GET');
+        
+        $data = $this->decodeBody($result);
+                
+        return $data;
     }
 }
